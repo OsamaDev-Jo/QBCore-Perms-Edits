@@ -87,3 +87,26 @@ CREATE TABLE IF NOT EXISTS `permissions` (
   KEY `permission` (`permission`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
+
+## 🔄 Permission Restoration
+Add this to your server startup:
+
+```lua
+MySQL.ready(function()
+    local permissions = MySQL.Sync.fetchAll('SELECT * FROM permissions')
+    for _, data in ipairs(permissions) do
+        QBCore.Config.Server.Permissions[data.identifier] = {
+            identifier = data.identifier,
+            permission = data.permission
+        }
+        ExecuteCommand(('add_principal identifier.%s qbcore.%s'):format(data.identifier, data.permission))
+    end
+end)
+```
+
+## 📝 License
+This project is licensed under GPL-3.0. Please include attribution if modifying/distributing.
+
+## ⚠️ Important Notes
+1. Set `USE_LICENSE_ID` to true if you prefer license-based permissions
+```
